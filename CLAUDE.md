@@ -18,11 +18,12 @@ OTLP ingestion on Tempo: gRPC `4317`, HTTP `4318`.
 ## Config files
 
 ```
-observability/
-  grafana/datasources/datasources.yml   # auto-provisions all 3 datasources
-  prometheus/prometheus.yml             # scrape config (extend with your services)
-  loki/loki.yml                         # single-node filesystem storage
-  tempo/tempo.yml                       # local backend, 1h retention
+config/
+  observability/
+    grafana/datasources/datasources.yml   # auto-provisions all 3 datasources
+    prometheus/prometheus.yml             # scrape config (extend with your services)
+    loki/loki.yml                         # single-node filesystem storage
+    tempo/tempo.yml                       # local backend, 1h retention
 ```
 
 ## Extending
