@@ -90,8 +90,8 @@ metadata:
   namespace: my-team
 spec:
   targetDeployment: my-app
-  concurrencyRatio: 80000        # 1 replica per 80k concurrent users
-  expectedScalingTime: 10m       # start scaling 10 minutes before event
+  concurrencyRatio: 80000 # 1 replica per 80k concurrent users
+  expectedScalingTime: 10m # start scaling 10 minutes before event
   promQL: "sum(rate(active_sessions_total{app='my-app'}[2m]))"
   minReplicas: 2
   maxReplicas: 50
@@ -103,16 +103,16 @@ The `ScalingSpec` CRD schema is defined in Go using [kubebuilder](https://book.k
 
 ## Tech stack
 
-| Layer | Technology |
-|---|---|
-| Services | Go 1.22 |
-| HTTP router | [chi](https://github.com/go-chi/chi) |
-| Database | PostgreSQL via [pgx](https://github.com/jackc/pgx) |
+| Layer             | Technology                                                                  |
+| ----------------- | --------------------------------------------------------------------------- |
+| Services          | Go 1.22                                                                     |
+| HTTP router       | [echo](https://github.com/labstack/echo)                                    |
+| Database          | PostgreSQL via [pgx](https://github.com/jackc/pgx)                          |
 | Kubernetes client | [controller-runtime](https://github.com/kubernetes-sigs/controller-runtime) |
-| Autoscaling | [KEDA](https://keda.sh) with Prometheus scaler |
-| CRD generation | [controller-gen](https://github.com/kubernetes-sigs/controller-tools) |
-| Observability | Prometheus + Grafana |
-| Frontend | React + TypeScript (Vite) |
+| Autoscaling       | [KEDA](https://keda.sh) with Prometheus scaler                              |
+| CRD generation    | [controller-gen](https://github.com/kubernetes-sigs/controller-tools)       |
+| Observability     | Prometheus + Grafana                                                        |
+| Frontend          | React + TypeScript (Vite)                                                   |
 
 ---
 
@@ -122,11 +122,11 @@ The `ScalingSpec` CRD schema is defined in Go using [kubebuilder](https://book.k
 created → pending → active → ended
 ```
 
-| Status | Meaning |
-|---|---|
-| `pending` | Event stored, scaling not yet triggered |
-| `active` | Scaler has patched all ScaledObjects, apps are scaling up |
-| `ended` | Event is over, scaler has reset all apps to baseline |
+| Status    | Meaning                                                   |
+| --------- | --------------------------------------------------------- |
+| `pending` | Event stored, scaling not yet triggered                   |
+| `active`  | Scaler has patched all ScaledObjects, apps are scaling up |
+| `ended`   | Event is over, scaler has reset all apps to baseline      |
 
 ---
 
