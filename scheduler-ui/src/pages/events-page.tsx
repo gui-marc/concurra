@@ -6,13 +6,8 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
-import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemTitle,
-} from "@/components/ui/item"
 import { Skeleton } from "@/components/ui/skeleton"
+import EventsDataTable from "@/components/events/events-data-table"
 import { useGetEvents } from "@/hooks/use-get-events"
 import { ArrowUpRightIcon, HeartCrackIcon, PlusIcon } from "lucide-react"
 import type React from "react"
@@ -95,21 +90,7 @@ export default function EventsPage() {
 
   return (
     <Page>
-      <ol className="flex flex-col gap-6">
-        {events.map((event) => (
-          <Item key={event.id} variant="outline" asChild>
-            <Link to={`/events/${event.id}`}>
-              <ItemContent>
-                <ItemTitle>{event.name}</ItemTitle>
-                <ItemDescription>
-                  \{new Date(event.startTime).toLocaleString()} -{" "}
-                  {new Date(event.endTime).toLocaleString()}
-                </ItemDescription>
-              </ItemContent>
-            </Link>
-          </Item>
-        ))}
-      </ol>
+      <EventsDataTable events={events} />
     </Page>
   )
 }
