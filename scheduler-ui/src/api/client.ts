@@ -6,3 +6,13 @@ export const client = create({
     "Content-Type": "application/json",
   },
 })
+
+export type PageParams = {
+  page: number
+  pageSize: number
+}
+
+export type Page<T> = {
+  items: T[]
+  totalItems: number
+}

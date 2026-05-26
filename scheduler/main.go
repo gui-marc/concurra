@@ -47,7 +47,7 @@ func main() {
 
 	v1.GET("/events", eventHandler.GetEvents)
 	v1.POST("/events", eventHandler.CreateEvent)
-	v1.GET("/event/:eventId", eventHandler.GetEventByID)
+	v1.GET("/events/:eventId", eventHandler.GetEventByID)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", cli.Port)))
 }

@@ -11,7 +11,8 @@ import EventsDataTable from "@/components/events/events-data-table"
 import { useGetEvents } from "@/hooks/use-get-events"
 import { ArrowUpRightIcon, HeartCrackIcon, PlusIcon } from "lucide-react"
 import type React from "react"
-import { Link } from "react-router"
+import { Link, useSearchParams } from "react-router"
+import Pagination from "@/components/pagination"
 
 function Header() {
   return (
@@ -81,16 +82,41 @@ function Error() {
   )
 }
 
+const PAGE_SIZE = 10
+
 export default function EventsPage() {
-  const { data: events, isPending, isError } = useGetEvents()
+  const [searchParams] = useSearchParams()
+  const currentPage = Number(searchParams.get("page") || "1")
+
+  const {
+    data: page,
+    isPending,
+    isError,
+  } = useGetEvents({
+    page: currentPage,
+    pageSize: PAGE_SIZE,
+  })
 
   if (isError) return <Error />
 
-  if (isPending || !events) return <Loading />
+  if (isPending || !page) return <Loading />
+
+  const events = page.items
 
   return (
     <Page>
       <EventsDataTable events={events} />
+      <div className="mt-6 flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          Showing {events.length} of {page.totalItems} events
+        </p>
+        <div>
+          <Pagination
+            totalItems={page.totalItems}
+            defaultPageSize={PAGE_SIZE}
+          />
+        </div>
+      </div>
     </Page>
   )
 }

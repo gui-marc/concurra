@@ -28,3 +28,9 @@ INSERT INTO
     )
 VALUES
     ($1, $2, $3, $4) RETURNING *;
+
+-- name: GetTotalEventsCount :one
+SELECT
+    COUNT(*)
+FROM
+    events;

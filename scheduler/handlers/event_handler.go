@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/gui-marc/concurra/scheduler/models"
 	"github.com/gui-marc/concurra/scheduler/services"
 	"github.com/labstack/echo/v4"
 )
@@ -23,7 +25,27 @@ type eventHandler struct {
 }
 
 func (h *eventHandler) GetEvents(c echo.Context) error {
-	events, err := h.eventService.GetEvents(c.Request().Context())
+	page := c.QueryParam("page")
+	pageSize := c.QueryParam("pageSize")
+
+	pageParams := models.PageParams{
+		Page:     1,
+		PageSize: 100,
+	}
+
+	if page != "" {
+		if _, err := fmt.Sscanf(page, "%d", &pageParams.Page); err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]any{"error": "invalid page parameter"})
+		}
+	}
+
+	if pageSize != "" {
+		if _, err := fmt.Sscanf(pageSize, "%d", &pageParams.PageSize); err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]any{"error": "invalid pageSize parameter"})
+		}
+	}
+
+	events, err := h.eventService.GetEvents(c.Request().Context(), pageParams)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]any{"error": err.Error()})
 	}

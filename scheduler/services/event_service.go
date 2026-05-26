@@ -9,7 +9,7 @@ import (
 )
 
 type EventService interface {
-	GetEvents(ctx context.Context) ([]models.EventResponse, error)
+	GetEvents(ctx context.Context, pageParams models.PageParams) (models.Page[models.EventResponse], error)
 	CreateEvent(ctx context.Context, name string, startTime, endTime time.Time, concurrencyTarget float32) (models.EventResponse, error)
 	GetEventByID(ctx context.Context, id string) (models.EventResponse, error)
 }
@@ -24,10 +24,10 @@ type eventService struct {
 	eventRepository repository.EventRepository
 }
 
-func (s *eventService) GetEvents(ctx context.Context) ([]models.EventResponse, error) {
-	events, err := s.eventRepository.GetEvents(ctx, 100, 0)
+func (s *eventService) GetEvents(ctx context.Context, pageParams models.PageParams) (models.Page[models.EventResponse], error) {
+	events, err := s.eventRepository.GetEvents(ctx, pageParams.Limit(), pageParams.Offset())
 	if err != nil {
-		return nil, err
+		return models.Page[models.EventResponse]{}, err
 	}
 
 	var eventResponses []models.EventResponse
@@ -35,7 +35,12 @@ func (s *eventService) GetEvents(ctx context.Context) ([]models.EventResponse, e
 		eventResponses = append(eventResponses, models.NewEventResponse(&event))
 	}
 
-	return eventResponses, nil
+	totalItems, err := s.eventRepository.GetEventsCount(ctx)
+	if err != nil {
+		return models.Page[models.EventResponse]{}, err
+	}
+
+	return models.NewPage(eventResponses, totalItems), nil
 }
 
 func (s *eventService) CreateEvent(ctx context.Context, name string, startTime, endTime time.Time, concurrencyTarget float32) (models.EventResponse, error) {

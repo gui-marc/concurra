@@ -113,3 +113,17 @@ func (q *Queries) GetEvents(ctx context.Context, arg GetEventsParams) ([]Event, 
 	}
 	return items, nil
 }
+
+const getTotalEventsCount = `-- name: GetTotalEventsCount :one
+SELECT
+    COUNT(*)
+FROM
+    events
+`
+
+func (q *Queries) GetTotalEventsCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, getTotalEventsCount)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}

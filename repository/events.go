@@ -26,6 +26,7 @@ type EventRepository interface {
 	GetEvents(ctx context.Context, limit int, offset int) ([]Event, error)
 	GetEventByID(ctx context.Context, id string) (Event, error)
 	CreateEvent(ctx context.Context, params CreateEventParams) (Event, error)
+	GetEventsCount(ctx context.Context) (int, error)
 }
 
 type pgxEventRepository struct {
@@ -86,4 +87,13 @@ func (r *pgxEventRepository) CreateEvent(ctx context.Context, params CreateEvent
 	}
 
 	return eventFromInternal(event), nil
+}
+
+func (r *pgxEventRepository) GetEventsCount(ctx context.Context) (int, error) {
+	count, err := r.queries.GetTotalEventsCount(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(count), nil
 }

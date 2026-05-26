@@ -1,4 +1,4 @@
-import { client } from "./client"
+import { client, type Page, type PageParams } from "./client"
 
 const BASE_URL = "/api/v1/events"
 
@@ -10,8 +10,16 @@ export type Event = {
   concurrencyTarget: number
 }
 
-export async function getEvents(): Promise<Event[]> {
-  const response = await client.get<Event[]>(BASE_URL)
+export async function getEvents({
+  page = 1,
+  pageSize = 10,
+}: PageParams): Promise<Page<Event>> {
+  const response = await client.get<Page<Event>>(BASE_URL, {
+    params: {
+      page,
+      pageSize,
+    },
+  })
   return response.data
 }
 

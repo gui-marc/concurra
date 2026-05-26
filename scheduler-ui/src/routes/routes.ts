@@ -4,6 +4,7 @@ import RootLayout from "@/layout/root-layout"
 import EventPage from "@/pages/event-page"
 import EventsPage from "@/pages/events-page"
 import CreateEventPage from "@/pages/create-event-page"
+import { eventLoader } from "@/loaders/events"
 
 export const router = createBrowserRouter([
   {
@@ -16,8 +17,9 @@ export const router = createBrowserRouter([
         Component: EventsPage,
       },
       {
-        path: "events/:event",
+        path: "events/:id",
         Component: EventPage,
+        loader: eventLoader,
       },
       {
         path: "events/create",
