@@ -5,8 +5,61 @@
 package internal
 
 import (
+	"database/sql/driver"
+	"fmt"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type ComponentType string
+
+const (
+	ComponentTypeTenant     ComponentType = "tenant"
+	ComponentTypeThirdParty ComponentType = "third-party"
+)
+
+func (e *ComponentType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ComponentType(s)
+	case string:
+		*e = ComponentType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ComponentType: %T", src)
+	}
+	return nil
+}
+
+type NullComponentType struct {
+	ComponentType ComponentType
+	Valid         bool // Valid is true if ComponentType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullComponentType) Scan(value interface{}) error {
+	if value == nil {
+		ns.ComponentType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ComponentType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullComponentType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ComponentType), nil
+}
+
+type Component struct {
+	ID   pgtype.UUID
+	Name string
+	Team string
+	Area string
+	Type ComponentType
+}
 
 type Event struct {
 	ID                pgtype.UUID
