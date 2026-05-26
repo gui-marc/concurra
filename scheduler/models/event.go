@@ -1,5 +1,11 @@
 package models
 
+import (
+	"time"
+
+	"github.com/gui-marc/concurra/repository"
+)
+
 type EventResponse struct {
 	ID                string  `json:"id"`
 	Name              string  `json:"name"`
@@ -8,12 +14,12 @@ type EventResponse struct {
 	ConcurrencyTarget float32 `json:"concurrencyTarget"`
 }
 
-func NewEventResponse(id, name, startTime, endTime string, concurrencyTarget float32) EventResponse {
+func NewEventResponse(event *repository.Event) EventResponse {
 	return EventResponse{
-		ID:                id,
-		Name:              name,
-		StartTime:         startTime,
-		EndTime:           endTime,
-		ConcurrencyTarget: concurrencyTarget,
+		ID:                event.ID,
+		Name:              event.Name,
+		StartTime:         event.StartTime.Format(time.RFC3339),
+		EndTime:           event.EndTime.Format(time.RFC3339),
+		ConcurrencyTarget: event.ConcurrencyTarget,
 	}
 }

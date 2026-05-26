@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gui-marc/concurra/scheduler/services"
 	"github.com/labstack/echo/v4"
@@ -10,9 +11,7 @@ import (
 type EventHandler interface {
 	GetEvents(c echo.Context) error
 	CreateEvent(c echo.Context) error
-	GetEvent(c echo.Context) error
-	UpdateEvent(c echo.Context) error
-	DeleteEvent(c echo.Context) error
+	GetEventByID(c echo.Context) error
 }
 
 func NewEventHandler(eventService services.EventService) EventHandler {
@@ -34,10 +33,10 @@ func (h *eventHandler) GetEvents(c echo.Context) error {
 
 func (h *eventHandler) CreateEvent(c echo.Context) error {
 	type request struct {
-		Name              string  `json:"name"`
-		StartTime         string  `json:"startTime"`
-		EndTime           string  `json:"endTime"`
-		ConcurrencyTarget float32 `json:"concurrencyTarget"`
+		Name              string    `json:"name"`
+		StartTime         time.Time `json:"startTime"`
+		EndTime           time.Time `json:"endTime"`
+		ConcurrencyTarget float32   `json:"concurrencyTarget"`
 	}
 
 	var req request
@@ -53,46 +52,13 @@ func (h *eventHandler) CreateEvent(c echo.Context) error {
 	return c.JSON(http.StatusCreated, event)
 }
 
-func (h *eventHandler) GetEvent(c echo.Context) error {
+func (h *eventHandler) GetEventByID(c echo.Context) error {
 	id := c.Param("eventId")
 
-	event, err := h.eventService.GetEvent(c.Request().Context(), id)
+	event, err := h.eventService.GetEventByID(c.Request().Context(), id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]any{"error": err.Error()})
 	}
 
 	return c.JSON(http.StatusOK, event)
-}
-
-func (h *eventHandler) UpdateEvent(c echo.Context) error {
-	id := c.Param("eventId")
-	type request struct {
-		Name              string  `json:"name"`
-		StartTime         string  `json:"startTime"`
-		EndTime           string  `json:"endTime"`
-		ConcurrencyTarget float32 `json:"concurrencyTarget"`
-	}
-
-	var req request
-	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]any{"error": "invalid request body"})
-	}
-
-	event, err := h.eventService.UpdateEvent(c.Request().Context(), id, req.Name, req.StartTime, req.EndTime, req.ConcurrencyTarget)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]any{"error": err.Error()})
-	}
-
-	return c.JSON(http.StatusOK, event)
-}
-
-func (h *eventHandler) DeleteEvent(c echo.Context) error {
-	id := c.Param("eventId")
-
-	err := h.eventService.DeleteEvent(c.Request().Context(), id)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]any{"error": err.Error()})
-	}
-
-	return c.JSON(http.StatusNoContent, nil)
 }

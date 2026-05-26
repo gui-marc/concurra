@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/alecthomas/kong"
@@ -32,12 +33,13 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	conn, err := repository.NewPGConnection(cli.DatabaseURL)
+	q, conn, err := repository.NewPGQueries(cli.DatabaseURL)
 	if err != nil {
-		e.Logger.Fatal(err)
+		panic(fmt.Sprintf("Failed to connect to database: %v", err))
 	}
+	defer conn.Close(context.Background())
 
-	eventRepository := repository.NewEventRepository(conn)
+	eventRepository := repository.NewPGXEventRepository(q)
 	eventService := services.NewEventService(eventRepository)
 	eventHandler := handlers.NewEventHandler(eventService)
 
@@ -45,9 +47,7 @@ func main() {
 
 	v1.GET("/events", eventHandler.GetEvents)
 	v1.POST("/events", eventHandler.CreateEvent)
-	v1.GET("/event/:eventId", eventHandler.GetEvent)
-	v1.PUT("/event/:eventId", eventHandler.UpdateEvent)
-	v1.DELETE("/event/:eventId", eventHandler.DeleteEvent)
+	v1.GET("/event/:eventId", eventHandler.GetEventByID)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", cli.Port)))
 }
