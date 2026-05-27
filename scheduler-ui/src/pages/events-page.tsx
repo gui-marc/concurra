@@ -101,7 +101,7 @@ export default function EventsPage() {
 
   if (isPending || !page) return <Loading />
 
-  const events = page.items
+  const events = page.items || []
 
   return (
     <Page>

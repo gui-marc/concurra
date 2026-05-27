@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input"
 import { DatePickerWithRange } from "@/components/date-picker-with-range"
 import React from "react"
 import type { DateRange } from "react-day-picker"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Separator } from "@/components/ui/separator"
 
@@ -40,12 +40,13 @@ type FormValues = z.infer<typeof formSchema>
 const now = Date.now()
 
 export default function CreateEventPage() {
+  const navigate = useNavigate()
   const [range, setRange] = React.useState<DateRange>({
     from: new Date(now),
     to: new Date(now + 60 * 60 * 1000 * 24), // Default to 1 day later
   })
 
-  const { mutate, isPending } = useCreateEvent()
+  const { mutateAsync, isPending } = useCreateEvent()
 
   const form = useForm<FormValues>({
     defaultValues: {
@@ -57,8 +58,9 @@ export default function CreateEventPage() {
     resolver: zodResolver(formSchema),
   })
 
-  function onSubmit(data: FormValues) {
-    mutate(data)
+  async function onSubmit(data: FormValues) {
+    const event = await mutateAsync(data)
+    await navigate(`/events/${event.id}`)
   }
 
   return (
